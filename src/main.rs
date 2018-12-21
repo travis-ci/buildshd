@@ -1,16 +1,25 @@
+mod job_board;
+
 use quicli::prelude::*;
 use std::{thread, time};
 use structopt::StructOpt;
+
+/*
+#[macro_use]
+extern crate serde_derive;
+*/
 
 fn main() -> CliResult {
     let args = Cli::from_args();
     args.verbosity.setup_env_logger("head")?;
 
     let check_interval = time::Duration::new(args.check_interval_seconds.into(), 0);
-    let job_board_client = JobBoardClient {
-        url: args.job_board_url,
-        processor_id: "xyz".to_string(),
-    };
+    let job_board_client = job_board::Client::new(
+        args.job_board_url,
+        "xyz".to_string(),
+        "wat".to_string(),
+        "stuff".to_string(),
+    );
 
     loop {
         println!("waiting for a job ok");
@@ -56,27 +65,4 @@ struct Cli {
         help = "Check for available job once and exit"
     )]
     once: bool,
-}
-
-use reqwest;
-
-#[derive(Debug)]
-struct JobBoardClient {
-    url: String,
-    processor_id: String,
-}
-
-impl JobBoardClient {
-    fn fetch_job_id(&self) -> u64 {
-        0
-    }
-
-    fn fetch_job(&self, id: u64) -> Job {
-        Job { id: id }
-    }
-}
-
-#[derive(Debug)]
-struct Job {
-    id: u64,
 }
